@@ -1,0 +1,22 @@
+package com.craftinginterpreters.meowbasic;
+
+public enum TokenType {
+	// single-character tokens
+	LEFT_PAREN, RIGHT_PAREN, COMMA, DOT, COLON, STAR, BACK_SLASH, PERCENT, CARET,
+	
+	// two character tokens
+	AND_AND, PIPE_PIPE,
+	
+	// one or two character tokens
+	SLASH, SLASH_SLASH, BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, PLUS, PLUS_PLUS, 	MINUS, MINUS_MINUS, 
+	
+	// literals
+	IDENTIFIER, BYTE, CHARACTER, SHORT, INTEGER, LONG, SINGLE, DOUBLE, STRING, BOOLEAN,
+	
+	// keywords
+	CASE, DEFAULT, DO, EACH, ELSE, END, FALSE, FOR, FUN, IF, IN, LOOP, NEXT, NULL, PRINT, REM, RETURN, SELECT, SUB, TO, 	TRUE, UNTIL, VAR, WHILE,
+	
+	EOF
+
+
+}

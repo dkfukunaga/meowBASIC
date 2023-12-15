@@ -15,6 +15,45 @@ public class MeowScanner {
 	private int current = 0;
 	private int line = 1;
 	
+	private static final Map<String, TokenType> keywords;
+	
+	static {
+		keywords = new HashMap<>();
+		keywords.put("bool",	BOOLEAN);
+		keywords.put("case", 	CASE);
+		keywords.put("char",	CHARACTER);
+		keywords.put("default", DEFAULT);
+		keywords.put("do", 		DO);
+		keywords.put("double",	DOUBLE);
+		keywords.put("each", 	EACH);
+		keywords.put("else", 	ELSE);
+		keywords.put("end", 	END);
+		keywords.put("false", 	FALSE);
+		keywords.put("for", 	FOR);
+		keywords.put("fun", 	FUN);
+		keywords.put("if",		IF);
+		keywords.put("in", 		IN);
+		keywords.put("int",		INTEGER);
+		keywords.put("long",	LONG_INTEGER);
+		keywords.put("loop", 	LOOP);
+		keywords.put("next", 	NEXT);
+		keywords.put("null", 	NULL);
+		keywords.put("print", 	PRINT);
+		keywords.put("rem", 	REM);
+		keywords.put("return", 	RETURN);
+		keywords.put("select", 	SELECT);
+		keywords.put("short",	SHORT_INTEGER);
+		keywords.put("single",	SINGLE_FLOAT);
+		keywords.put("string",	STRING);
+		keywords.put("sub", 	SUB);
+		keywords.put("to", 		TO);
+		keywords.put("true", 	TRUE);
+		keywords.put("until", 	UNTIL);
+		keywords.put("var", 	VAR);
+		keywords.put("while", 	WHILE);
+	}
+	
+	
 	MeowScanner(String source) {
 		this.source = source;
 	}
@@ -118,6 +157,8 @@ public class MeowScanner {
 			default:
 				if (isDigit(c)) {
 					number();
+				} else if (isAlpha(c)){
+					identifier();
 				} else {
 					MeowBasic.error(line,  "Unexpected Error");
 				}
@@ -125,6 +166,17 @@ public class MeowScanner {
 		}
 		
 		
+	}
+	
+	private void identifier() {
+		while (isAlphaNumeric(peek())) advance();
+		
+		String text = source.substring(start, current);
+		TokenType type = keywords.get(text);
+		
+		if (type == null) type = IDENTIFIER;
+		
+		addToken(type);
 	}
 	
 	private void number() {
@@ -153,12 +205,12 @@ public class MeowScanner {
 			case 'l':
 			case 'L':
 				advance();
-				addToken(LONG, Long.parseLong(source.substring(start, current - 1)));
+				addToken(LONG_INTEGER, Long.parseLong(source.substring(start, current - 1)));
 				break;
 			case 'f':
 			case 'F':
 				advance();
-				addToken(SINGLE, Float.parseFloat(source.substring(start, current - 1)));
+				addToken(SINGLE_FLOAT, Float.parseFloat(source.substring(start, current - 1)));
 				break;
 			case 'd':
 			case 'D':
@@ -190,7 +242,7 @@ public class MeowScanner {
 		
 		// trim the surrounding quotes
 		String value = source.substring(start + 1, current - 1);
-		addToken(STRING, value);
+		addToken(STRING_TYPE, value);
 	}
 	
 	private void character() {
@@ -226,6 +278,16 @@ public class MeowScanner {
 	private char peekNext() {
 		if (current + 1 >= source.length()) return '\0';
 		return source.charAt(current + 1);
+	}
+	
+	private boolean isAlpha(char c) {
+		return	(c >= 'a' && c <= 'z') ||
+				(c >= 'A' && c <= 'Z') ||
+				c == '_';
+	}
+	
+	private boolean isAlphaNumeric(char c) {
+		return isAlpha(c) || isDigit(c);
 	}
 	
 	private boolean isDigit(char c) {

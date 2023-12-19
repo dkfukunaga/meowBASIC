@@ -8,6 +8,7 @@ abstract class Expr {
 		R visitGroupingExpr(Grouping expr);
 		R visitLiteralExpr(Literal expr);
 		R visitUnaryExpr(Unary expr);
+		R visitPostfixExpr(Postfix expr);
 	}
 
 	static class Binary extends Expr {
@@ -69,6 +70,22 @@ abstract class Expr {
 		@Override
 		<R> R accept(Visitor<R> visitor) {
 			return visitor.visitUnaryExpr(this);
+		}
+	}
+
+	static class Postfix extends Expr {
+
+		final Expr left;
+		final Token operator;
+
+		Postfix(Expr left, Token operator) {
+			this.left = left;
+			this.operator = operator;
+		}
+
+		@Override
+		<R> R accept(Visitor<R> visitor) {
+			return visitor.visitPostfixExpr(this);
 		}
 	}
 

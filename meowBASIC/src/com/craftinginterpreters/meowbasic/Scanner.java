@@ -7,7 +7,7 @@ import java.util.Map;
 
 import static com.craftinginterpreters.meowbasic.TokenType.*;
 
-public class MeowScanner {
+public class Scanner {
 	private final String source;
 	private final List<Token> tokens = new ArrayList<>();
 	
@@ -24,17 +24,19 @@ public class MeowScanner {
 		keywords.put("char",	CHARACTER);
 		keywords.put("default", DEFAULT);
 		keywords.put("do", 		DO);
-		keywords.put("double",	DOUBLE);
 		keywords.put("each", 	EACH);
 		keywords.put("else", 	ELSE);
-		keywords.put("end", 	END);
+		keywords.put("endif", 	ENDIF);
+		keywords.put("endfun", 	ENDSEL);
+		keywords.put("endsel", 	ENDIF);
+		keywords.put("endsub", 	ENDSUB);
 		keywords.put("false", 	FALSE);
+		keywords.put("float",	FLOAT);
 		keywords.put("for", 	FOR);
 		keywords.put("fun", 	FUN);
 		keywords.put("if",		IF);
 		keywords.put("in", 		IN);
 		keywords.put("int",		INTEGER);
-		keywords.put("long",	LONG_INTEGER);
 		keywords.put("loop", 	LOOP);
 		keywords.put("next", 	NEXT);
 		keywords.put("null", 	NULL);
@@ -42,8 +44,6 @@ public class MeowScanner {
 		keywords.put("rem", 	REM);
 		keywords.put("return", 	RETURN);
 		keywords.put("select", 	SELECT);
-		keywords.put("short",	SHORT_INTEGER);
-		keywords.put("single",	SINGLE_FLOAT);
 		keywords.put("string",	STRING);
 		keywords.put("sub", 	SUB);
 		keywords.put("to", 		TO);
@@ -54,7 +54,7 @@ public class MeowScanner {
 	}
 	
 	
-	MeowScanner(String source) {
+	Scanner(String source) {
 		this.source = source;
 	}
 	
@@ -100,6 +100,10 @@ public class MeowScanner {
 			case '^':
 				addToken(CARET);
 				break;
+			case '\n':
+				addToken(NEW_LINE);
+				line++;
+				break;
 
 			case '&':
 				if (peek() == '&') {
@@ -110,7 +114,7 @@ public class MeowScanner {
 			case '|':
 				if (peek() == '|') {
 					advance();
-					addToken(AND_AND);
+					addToken(PIPE_PIPE);
 				}
 				break;
 				
@@ -125,7 +129,7 @@ public class MeowScanner {
 				addToken(match('=') ? EQUAL_EQUAL : EQUAL);
 				break;
 			case '>':
-				addToken(match('=') ? GREATER_EQUAL : EQUAL);
+				addToken(match('=') ? GREATER_EQUAL : GREATER);
 				break;
 			case '<':
 				addToken(match('=') ? LESS_EQUAL : LESS);
@@ -143,9 +147,9 @@ public class MeowScanner {
 				// ignore whitespace
 				break;
 			
-			case '\n':
-				line++;
-				break;
+//			case '\n':
+//				line++;
+//				break;
 				
 			case '"':
 				string();
@@ -186,45 +190,18 @@ public class MeowScanner {
 		
 		// look for a fractional part
 		if (peek() == '.' && isDigit(peekNext())) {
-			// set type to DOUBLE
-			type = DOUBLE;
+			// set type to FLOAT
+			type = FLOAT;
 			// consume the '.'
 			advance();
 			
 			while (isDigit(peek())) advance();
 		}
 		
-		
-		// check for type suffix
-		switch (peek()) {
-			case 'i':
-			case 'I':
-				advance();
-				addToken(INTEGER, Integer.parseInt(source.substring(start, current - 1)));
-				break;
-			case 'l':
-			case 'L':
-				advance();
-				addToken(LONG_INTEGER, Long.parseLong(source.substring(start, current - 1)));
-				break;
-			case 'f':
-			case 'F':
-				advance();
-				addToken(SINGLE_FLOAT, Float.parseFloat(source.substring(start, current - 1)));
-				break;
-			case 'd':
-			case 'D':
-				advance();
-				addToken(DOUBLE, Double.parseDouble(source.substring(start, current - 1)));
-				break;
-			default:
-				if (type == INTEGER) {
-					addToken(INTEGER, Integer.parseInt(source.substring(start, current)));
-					break;
-				} else if (type == DOUBLE) {
-					addToken(DOUBLE, Double.parseDouble(source.substring(start, current)));
-					break;
-				}
+		if (type == INTEGER) {
+			addToken(INTEGER, Integer.parseInt(source.substring(start, current)));
+		} else if (type == FLOAT) {
+			addToken(FLOAT, Double.parseDouble(source.substring(start, current)));
 		}
 	}
 	
@@ -242,7 +219,7 @@ public class MeowScanner {
 		
 		// trim the surrounding quotes
 		String value = source.substring(start + 1, current - 1);
-		addToken(STRING_TYPE, value);
+		addToken(STRING, value);
 	}
 	
 	private void character() {

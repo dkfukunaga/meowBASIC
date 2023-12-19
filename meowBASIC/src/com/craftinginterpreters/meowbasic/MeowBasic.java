@@ -17,9 +17,19 @@ public class MeowBasic {
 			System.out.println("Usage: meow [script]");
 			System.exit(64);
 		} else if (args.length == 1) {
-			runFile(args[0]);
+			try {
+				runFile(args[0]);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else {
-			runPrompt();
+			try {
+				runPrompt();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -46,13 +56,20 @@ public class MeowBasic {
 	}
 	
 	private static void run(String source) {
-		MeowScanner scanner = new MeowScanner(source);
-		List<Token> tokens = scanner.tokens();
+		Scanner scanner = new Scanner(source);
+		List<Token> tokens = scanner.scanTokens();
+		Parser parser = new Parser(tokens);
+		Expr expression = parser.parse();
+		
+		// Stop if there was a syntax error
+		if (hadError) return;
+		
+		System.out.println(new AstPrinter().print(expression));
 		
 		// For now, just print the tokens.
-		for (Token token : tokens) {
-			System.out.println(token);
-		}
+//		for (Token token : tokens) {
+//			System.out.println(token);
+//		}
 	}
 	
 	static void error(int line, String message) {
@@ -62,6 +79,14 @@ public class MeowBasic {
 	private static void report(int line, String where, String message) {
 		System.err.println("[line " + line + "] Error" + where + ": " + message);
 		hadError = true;
+	}
+	
+	static void error(Token token, String message) {
+		if (token.type == TokenType.EOF) {
+			report(token.line, " at end", message);
+		} else {
+			report(token.line, " at '" + token.lexeme + "'", message);
+		}
 	}
 
 }

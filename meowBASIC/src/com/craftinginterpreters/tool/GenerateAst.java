@@ -18,7 +18,8 @@ public class GenerateAst {
 				"Binary		: Expr left, Token operator, Expr right",
 				"Grouping	: Expr expression",
 				"Literal	: Object value",
-				"Unary		: Token operator, Expr right"
+				"Unary		: Token operator, Expr right",
+				"Postfix	: Expr left, Token operator"
 			));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -32,9 +33,9 @@ public class GenerateAst {
 		
 		writer.println("package com.craftinginterpreters.meowbasic;");
 		writer.println();
-	    writer.println("import java.util.List;");
-	    writer.println();
-	    writer.println("abstract class " + baseName + " {");
+		writer.println("import java.util.List;");
+		writer.println();
+		writer.println("abstract class " + baseName + " {");
 		
 		defineVisitor(writer, baseName, types);
 	    

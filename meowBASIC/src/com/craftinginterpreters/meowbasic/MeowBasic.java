@@ -50,6 +50,7 @@ public class MeowBasic {
 			System.out.print("> ");
 			String line = reader.readLine();
 			if (line == null) break;
+			if (line.equalsIgnoreCase(":quit") || line.equalsIgnoreCase(":q")) System.exit(0);
 			run(line);
 			hadError = false;
 		}
